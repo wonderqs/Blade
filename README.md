@@ -40,4 +40,4 @@ Server side scripts supporting is not completed, currently only support PHP and 
 
 Database management function is not completed, so can not connect databases
 ##Future developent
-Beacuse I am busy sometimes, the progress of development may be a bit slow. If anyone intrest this project, welcome folk!
+Beacuse I am busy sometimes, the progress of development may be a bit slow. If anyone intrest this project, welcome fork!

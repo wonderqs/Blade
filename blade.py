@@ -347,7 +347,7 @@ class Launcher(object):
         print '  -p+        Connection password (Command parameter name)'
         print ''
         print '  --shell    Get a web based shell on the console'
-        print '  --pull+    Download file to local: remote_path local_path / remote_path'
+        print '  --pull+    Download file to local: -- pull remote_path local_path / --pull remote_path'
         print '  --push+    Upload a file from loacl: --push local_path remote_path'
         print ''
         print 'Examples for using:'
