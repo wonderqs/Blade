@@ -7,8 +7,6 @@ from lib.core.payloader import Payloader
 import base64
 
 class PhpPayloader(Payloader):
-    def __init__(self, password):
-        Payloader.__init__(self, password)
 
     def parseCmd(self, osType, pwd, cmd, payload):
         if osType == 'windows':
