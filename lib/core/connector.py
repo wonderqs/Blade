@@ -10,7 +10,7 @@ class Connector(object):
     """The base class for all functions"""
 
     # Constructor
-    # para: url, password, server
+    # param: url, password, server
     # retuen: none
     def __init__(self, url, password, server):
         self.url = url
@@ -42,8 +42,8 @@ class Connector(object):
         h = httplib2.Http(timeout = 7)
         resp, content = h.request(self.url + '?' + param, "GET", headers = header)
         if resp['status'] != '200':
-            print '+ HTTP Error'
-            print '+ Status Code: ' + resp['status']
+            print '- HTTP Error'
+            print '- Status Code: ' + resp['status']
             status = 'fail'
         return status, content
 
@@ -64,8 +64,8 @@ class Connector(object):
         h = httplib2.Http(timeout = 7)
         resp, content = h.request(self.url, "POST", param, header)
         if resp['status'] != '200':
-            print '+ HTTP Error'
-            print '+ Status Code: ' + resp['status']
+            print '- HTTP Error'
+            print '- Status Code: ' + resp['status']
             status = 'fail'
         return status, content
 

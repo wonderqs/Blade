@@ -28,6 +28,12 @@ class Payloader(object):
     def parseUpload(self, remoteFilePath, fileContent, payload):
         pass
 
+    # Override this method
+    # param: dbms, dbHost, dbUserName, dbPassword, db, sql, payload
+    # return: none
+    def parseSql(self, dbms, dbHost, dbUserName, dbPassword, db, sql, payload):
+        pass
+
     # Get a payload run command
     # param: osType, pwd, cmd, payload
     # return: payload
@@ -50,4 +56,12 @@ class Payloader(object):
     def getUploadPayload(self, remoteFilePath, fileContent):
         payload = {}
         self.parseUpload(remoteFilePath, fileContent, payload)
+        return payload
+
+    # Get a payload run a SQL statement
+    # param: dbms, dbHost, dbUserName, dbPassword, db, sql
+    # return: payload
+    def getSqlPayload(self, dbms, dbHost, dbUserName, dbPassword, db, sql):
+        payload = {}
+        self.parseSql(dbms, dbHost, dbUserName, dbPassword, db, sql, payload)
         return payload

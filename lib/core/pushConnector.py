@@ -27,7 +27,7 @@ class PushConnector(FileConnector):
             print '+ Uploading Successful'
             print ''
         else:
-            print '+ Uploading Failed'
+            print '- Uploading Failed'
             print ''
 
     # The callable method to launch the connector

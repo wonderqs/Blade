@@ -43,5 +43,5 @@ class PullConnector(FileConnector):
                 print '+ Downloading Successful'
                 print ''
             else:
-                print '+ Downloading Failed'
+                print '- Downloading Failed'
                 print ''
