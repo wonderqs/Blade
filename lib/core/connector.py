@@ -74,4 +74,8 @@ class Connector(object):
     # return: statu
     def launch(self):
         # Test the connection
-        return self.getToServer({})[0]
+        try:
+            return self.getToServer({})[0]
+        except httplib2.socket.error:
+            print '- The host is unreachable'
+            return 'fail'

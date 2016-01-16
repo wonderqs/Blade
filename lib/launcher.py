@@ -134,6 +134,7 @@ class Launcher(object):
             host = raw_input('+ Database host: ')
             userName = raw_input('+ User name: ')
             password = raw_input('+ Password: ')
+            print '------------------------------------------------------------'
             if config['database'] == 'oracle':
                 db = raw_input('+ Database name: ')
                 connector = DatabaseConnector(config['url'], config['password'], config['server'], config['database'], host, userName, password, db)

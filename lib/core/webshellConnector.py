@@ -66,14 +66,15 @@ class WebShellConnector(Connector):
                     pwd = newPwd
                     cmd = raw_input('$ ')
             else:
-                print '- The shell script can not work properly'
+                print '- Error: Can not get shell'
+                print ''
         except KeyboardInterrupt:
             pass
         except AttributeError:
-            print '- Command can not run'
+            print '- Error: Command can not run'
             print '- Check if the password or server type is incorrect'
             print ''
         except Exception:
-            print '- Can not get shell'
+            print '- Error: Can not get shell'
             print '- Check if the URL is incorrect'
             print ''

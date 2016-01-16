@@ -27,7 +27,7 @@ class PushConnector(FileConnector):
             print '+ Uploading Successful'
             print ''
         else:
-            print '- Uploading Failed'
+            print '+ Uploading Failed'
             print ''
 
     # The callable method to launch the connector
@@ -36,3 +36,6 @@ class PushConnector(FileConnector):
     def launch(self):
         if FileConnector.launch(self) != 'fail':
             self.uploadFile()
+        else:
+            print 'Error: File opreation can not work'
+            print ''
