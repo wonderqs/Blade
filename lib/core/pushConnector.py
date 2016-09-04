@@ -7,10 +7,10 @@ class PushConnector(FileConnector):
     """Push class extends from FileConnector"""
 
     # Constructor
-    # param: url, password, server, fileList
+    # param: url, password, server, fileList, timeout
     # return: none
-    def __init__(self, url, password, server, fileList):
-        FileConnector.__init__(self, url, password, server, fileList)
+    def __init__(self, url, password, server, fileList, timeout):
+        FileConnector.__init__(self, url, password, server, fileList, timeout)
         self.localFilePath = self.fileList[0]
         self.remoteFilePath = self.fileList[1]
 

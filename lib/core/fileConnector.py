@@ -7,10 +7,10 @@ class FileConnector(Connector):
     """File opreation functions"""
 
     # Constructor
-    # param: url, password, server, fileList
+    # param: url, password, server, fileList, timeout
     # return: none
-    def __init__(self, url, password, server, fileList):
-        Connector.__init__(self, url, password, server)
+    def __init__(self, url, password, server, fileList, timeout):
+        Connector.__init__(self, url, password, server, timeout)
         self.fileList = fileList
 
     # The callable method to launch the connector

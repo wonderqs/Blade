@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import pdb
 import httplib2
 from urllib import urlencode
+from lib.generic import Interaction
 from payloads.php import PhpPayloader
 from payloads.asp import AspPayloader
+from payloads.aspx import AspxPayloader
 
-class Connector(object):
+class Connector(object, Interaction):
     """The base class for all functions"""
 
     # Constructor
-    # param: url, password, server
-    # retuen: none
-    def __init__(self, url, password, server):
+    # param: url, password, server, timeout
+    # return: none
+    def __init__(self, url, password, server, timeout):
         self.url = url
+        self.timeout = timeout
         self.password = password
         self.server = server
         if server == 'php':
@@ -52,7 +56,10 @@ class Connector(object):
     # return: none
     def postToServer(self, data):
         status = 'success'
-        param = urlencode(data)
+        if "aspx" == self.server:
+            param = data[self.password]
+        else:
+            param = urlencode(data)
         header = {
             'Connection': 'keep-alive',
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17',
@@ -61,7 +68,7 @@ class Connector(object):
             'Content-type': 'application/x-www-form-urlencoded',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
         }
-        h = httplib2.Http(timeout = 7)
+        h = httplib2.Http(timeout = self.timeout)
         resp, content = h.request(self.url, "POST", param, header)
         if resp['status'] != '200':
             print '- HTTP Error'
